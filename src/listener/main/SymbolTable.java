@@ -154,7 +154,8 @@ public class SymbolTable {
 
 		VarInfo gvar = _gsymtable.get(name);
 		if (gvar != null) {
-			return Integer.toString(gvar.id);
+			//global variable
+			return "Test/" + name;
 		}
 
 		return null;
