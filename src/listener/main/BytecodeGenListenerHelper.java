@@ -89,7 +89,13 @@ public class BytecodeGenListenerHelper {
 		
 		for(int i = 0; i < params.param().size(); i++) {
 			MiniCParser.Type_specContext typespec = (MiniCParser.Type_specContext) params.param(i).getChild(0);
-			typeText.append(getTypeText(typespec).toUpperCase().charAt(0)); // + ";";
+			if(params.param(i).children.size() == 4) {
+				//array int [I
+				typeText.append("[I");
+			}
+			else {
+				typeText.append(getTypeText(typespec).toUpperCase().charAt(0)); // + ";";
+			}
 //			type INT append I, type VOId append V
 		}
 		return typeText.toString();

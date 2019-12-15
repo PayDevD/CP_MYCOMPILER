@@ -88,8 +88,11 @@ public class SymbolTable {
 			if(BytecodeGenListenerHelper.getTypeText((MiniCParser.Type_specContext)ctx.getChild(0)).equals("V")) {
 				type = Type.VOID;
 			}
-			else {
+			else if(ctx.children.size() == 2){
 				type = Type.INT;
+			}
+			else {
+				type = Type.INTARRAY;
 			}
 			putLocalVar(ctx.IDENT().getText(), type);
 		}

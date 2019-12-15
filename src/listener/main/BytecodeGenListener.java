@@ -70,7 +70,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), Type.INT, initVal(ctx));	
 		}
 		else  { // simple decl
-			String name = getLocalVarName(ctx);
 			symbolTable.putLocalVar(getLocalVarName(ctx), Type.INT);
 		}	
 	}
@@ -242,7 +241,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		if(isArrayDecl(ctx)) {
 			varDecl += "ldc " + ctx.LITERAL().getText() + "\n"
-					+ "newarray\n"
+					+ "newarray int\n"
 					+ "astore " + vId + "\n";
 		}
 		newTexts.put(ctx, varDecl);
@@ -378,7 +377,8 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					String literalStr = ctx.LITERAL().getText();
 					expr += "ldc " + literalStr + " \n";
 				}
-			} else if(ctx.getChildCount() == 2) { // UnaryOperation
+			}
+		else if(ctx.getChildCount() == 2) { // UnaryOperation
 			expr = handleUnaryExpr(ctx, expr);
 		}
 		else if(ctx.getChildCount() == 3) {	 
@@ -413,18 +413,15 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if(ctx.args() != null){		// function calls
 				expr = handleFunCall(ctx, expr);
 			} else { // expr
-				// Arrays: TODO
+				// Arrays:
 				String idName = ctx.IDENT().getText();
 				String varId = symbolTable.getVarId(idName);
 				if(!varId.contains("Test/")) {
-					expr += "aload " + varId + "\n"
-							+ newTexts.get(ctx.expr(0))
-							+ "iaload\n";
+					expr += "aload " + varId + "\n";
 				}
 				else {
 					//global
-					expr = newTexts.get(ctx.expr(0))
-							+ "getstatic " + varId;
+					expr = "getstatic " + varId;
 					if(symbolTable.getVarType(idName) == Type.INT) {
 						expr += " I\n";
 					}
@@ -432,10 +429,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 						expr += " [I\n";
 					}
 				}
+				expr += newTexts.get(ctx.expr(0))
+								+ "iaload\n";
 			}
 		}
 		// IDENT '[' expr ']' '=' expr
-		else { // Arrays: TODO			*/
+		else { // Arrays:
 			String idName = ctx.IDENT().getText();
 			String varId = symbolTable.getVarId(idName);
 			if(!varId.contains("Test/")) {

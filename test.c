@@ -1,24 +1,22 @@
-int add(int x, int y) {
-	int z ;
-	z = x+y;
-	return z;
-}
-
-int global_a = 1;
+int temp = 1;
 int global_arr[3];
 
-void main () {
-	int t = 25;
-	int a = 0;
-	global_arr[2] = 2;
-while( !(t < 10) or a) {
---t;
-if(t >= 10){
-_print(t);
-a = 1;
-}else {
-_print(-1);
+void arrprint(int arr[]) {
+int i = 0;
+while(i < 3) {
+_print(arr[i]);
+++i;
 }
 }
-_print(add(1,t));
+
+int main() {
+int arr[3];
+arr[0] = 1;
+arr[1] = 2;
+arr[2] = 3;
+global_arr[0] = 0;
+global_arr[1] = 1;
+global_arr[2] = 2;
+arrprint(arr);
+arrprint(global_arr);
 }

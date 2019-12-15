@@ -1,96 +1,78 @@
 .class public Test
 .super java/lang/Object
-.field static global_a I
+.field static temp I
 .field static global_arr [I
 .method public <init>()V
 aload_0
 invokenonvirtual java/lang/Object/<init>()V
 return
 .end method
-.method public static add(II)I
+.method public static arrprint([I)V
 	.limit stack 32
 	.limit locals 32
-iload 0 
-iload 1 
-iadd 
-istore_2 
-iload 2
-ireturn
-.end method
-.method public static main([Ljava/lang/String;)V
-	.limit stack 32
-	.limit locals 32
-ldc 1
-putstatic Test/global_a I
-ldc 3
-newarray int
-putstatic Test/global_arr [I
-ldc 25
-istore 1
 ldc 0
-istore 2
-getstatic Test/global_arr [I
-ldc 2 
-ldc 2 
-iastore
-label18:
+istore 1
+label5:
 iload 1 
-ldc 10 
+ldc 3 
 if_icmplt label0
 ldc 1
 goto label1
 label0:
 ldc 0
 label1: 
-ifeq label3
-label2:
-ldc 0
-goto label4
-label3:
-ldc 1
-label4: 
-iload 2 
-ifeq label5
-ifeq label7
-ldc 1
-goto label6
-label5:
-pop
-label7:
-ldc 0
-label6: 
-ifne label19
+ifne label6
+getstatic java/lang/System/out Ljava/io/PrintStream; 
+aload 0
+iload 1 
+iaload
+invokevirtual java/io/PrintStream/println(I)V
 iload 1 
 ldc 1
-isub
+iadd
 istore 1
-iload 1 
-ldc 10 
-if_icmpge label11
+goto label5
+label6:
+return
+.end method
+.method public static main([Ljava/lang/String;)V
+	.limit stack 32
+	.limit locals 32
 ldc 1
-goto label12
-label11:
-ldc 0
-label12 : 
-ifne label17
-getstatic java/lang/System/out Ljava/io/PrintStream; 
-iload 1 
-invokevirtual java/io/PrintStream/println(I)V
+putstatic Test/temp I
+ldc 3
+newarray int
+putstatic Test/global_arr [I
+ldc 3
+newarray int
+astore 1
+aload 1
+ldc 0 
 ldc 1 
-istore_2 
-goto label16
-label17:
-getstatic java/lang/System/out Ljava/io/PrintStream; 
+iastore
+aload 1
 ldc 1 
-ineg 
-invokevirtual java/io/PrintStream/println(I)V
-label16:
-goto label18
-label19:
-getstatic java/lang/System/out Ljava/io/PrintStream; 
+ldc 2 
+iastore
+aload 1
+ldc 2 
+ldc 3 
+iastore
+getstatic Test/global_arr [I
+ldc 0 
+ldc 0 
+iastore
+getstatic Test/global_arr [I
 ldc 1 
-iload 1 
-invokestatic Test/add(II)I
-invokevirtual java/io/PrintStream/println(I)V
+ldc 1 
+iastore
+getstatic Test/global_arr [I
+ldc 2 
+ldc 2 
+iastore
+aload 1 
+invokestatic Test/arrprint([I)V
+getstatic Test/global_arr [I
+invokestatic Test/arrprint([I)V
 return
 .end method
