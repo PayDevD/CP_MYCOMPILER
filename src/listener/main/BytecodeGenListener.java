@@ -1,5 +1,6 @@
 package listener.main;
 
+import com.sun.corba.se.impl.io.TypeMismatchException;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
@@ -457,29 +458,78 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String l1 = symbolTable.newLabel();
 		String l2 = symbolTable.newLabel();
 		String lend = symbolTable.newLabel();
-		String id = symbolTable.getVarId(ctx.expr(0).getText());
-
-		expr += newTexts.get(ctx.expr(0));
-		switch(ctx.getChild(0).getText()) {
-		case "-":
-			expr += "ineg \n"; break;
-		case "--":
-			expr += "ldc 1" + "\n"
-					+ "isub" + "\n"
-					+ "istore " + id + "\n";
-			break;
-		case "++":
-			expr += "ldc 1" + "\n"
-					+ "iadd" + "\n"
-					+ "istore " + id  + "\n";
-			break;
-		case "!":
-			expr += "ifeq " + l2 + "\n"
-					+ l1 + ":\n" + "ldc 0" + "\n"
-					+ "goto " + lend + "\n"
-					+ l2 + ":\n" + "ldc 1" + "\n"
-					+ lend + ": " + "\n";
-			break;
+		String id = symbolTable.getVarId(ctx.expr(0).IDENT().getText());
+		Type type = symbolTable.getVarType(ctx.expr(0).IDENT().getText());
+		if(type == Type.INTARRAY && ctx.expr(0).children.size() != 4) {
+			//not int && not IDENT[expr]
+			System.out.println("Invalid Operand : " + ctx.getText());
+			System.exit(-1);
+		}
+		if(type == Type.INT) {
+			expr += newTexts.get(ctx.expr(0));
+			switch(ctx.getChild(0).getText()) {
+				case "-":
+					expr += "ineg \n"; break;
+				case "--":
+					expr += "ldc 1" + "\n"
+							+ "isub" + "\n"
+							+ "istore " + id + "\n";
+					break;
+				case "++":
+					expr += "ldc 1" + "\n"
+							+ "iadd" + "\n"
+							+ "istore " + id  + "\n";
+					break;
+				case "!":
+					expr += "ifeq " + l2 + "\n"
+							+ l1 + ":\n" + "ldc 0" + "\n"
+							+ "goto " + lend + "\n"
+							+ l2 + ":\n" + "ldc 1" + "\n"
+							+ lend + ": " + "\n";
+					break;
+			}
+		}
+		else {
+			switch(ctx.getChild(0).getText()) {
+				case "-":
+					expr += newTexts.get(ctx.expr(0)) +
+							"ineg \n";
+					break;
+				case "--":
+					if(id.contains("Test/")) {
+						expr += "getstatic " + id + " [I\n";
+					}
+					else {
+						expr += "aload " + id + "\n";
+					}
+					expr += "ldc " + ctx.expr(0).expr(0).getText() + "\n" +
+							newTexts.get(ctx.expr(0)) +
+							"ldc 1" + "\n"
+							+ "isub" + "\n"
+							+ "iastore\n";
+					break;
+				case "++":
+					if(id.contains("Test/")) {
+						expr += "getstatic " + id + " [I\n";
+					}
+					else {
+						expr += "aload " + id + "\n";
+					}
+					expr += "ldc " + ctx.expr(0).expr(0).getText() + "\n" +
+							newTexts.get(ctx.expr(0)) +
+							"ldc 1" + "\n"
+							+ "iadd" + "\n"
+							+ "iastore\n";
+					break;
+				case "!":
+					expr += newTexts.get(ctx.expr(0)) +
+							"ifeq " + l2 + "\n"
+							+ l1 + ":\n" + "ldc 0" + "\n"
+							+ "goto " + lend + "\n"
+							+ l2 + ":\n" + "ldc 1" + "\n"
+							+ lend + ": " + "\n";
+					break;
+			}
 		}
 		return expr;
 	}
@@ -489,7 +539,14 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String l1 = symbolTable.newLabel();
 		String l2;
 		String lend = symbolTable.newLabel();
-		
+		Type type1 = symbolTable.getVarType(ctx.expr(0).getText());
+		Type type2 = symbolTable.getVarType(ctx.expr(1).getText());
+		if( (type1 == Type.INTARRAY && ctx.expr(0).children.size() != 4) ||
+				(type2 == Type.INTARRAY && ctx.expr(1).children.size() != 4)) {
+			System.out.println("Invalid Operand : " + ctx.getText());
+			System.exit(-1);
+		}
+
 		expr += newTexts.get(ctx.expr(0));
 		expr += newTexts.get(ctx.expr(1));
 		
@@ -577,7 +634,34 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	}
 	private String handleFunCall(MiniCParser.ExprContext ctx, String expr) {
 		String fname = getFunName(ctx);		
-
+		String funSpecStr = symbolTable.getFunSpecStr(fname);
+		String formalArgType = funSpecStr.substring(funSpecStr.indexOf("(") + 1, funSpecStr.indexOf(")"));
+		MiniCParser.ArgsContext args = ctx.args();
+		StringBuilder actualArgType = new StringBuilder();
+		//parameter type check
+		for(MiniCParser.ExprContext exprContext : args.expr()) {
+			if(exprContext.IDENT() != null) {
+				Type type = symbolTable.getVarType(exprContext.IDENT().getText());
+				if(type == Type.INT) {
+					actualArgType.append("I");
+				}
+				else if(type == Type.INTARRAY){
+					if(exprContext.children.size() == 4)
+						actualArgType.append("I");
+					else {
+						actualArgType.append("[I");
+					}
+				}
+			}
+			if(exprContext.LITERAL() != null) {
+				actualArgType.append("I");
+			}
+		}
+		//Invalid Parameter Input then System Exit
+		if(!formalArgType.equals(actualArgType.toString())) {
+			System.out.println("Invalid argument : " + ctx.getText());
+			System.exit(-1);
+		}
 		if (fname.equals("_print")) {		// System.out.println	
 			expr = "getstatic java/lang/System/out Ljava/io/PrintStream; " + "\n"
 			  		+ newTexts.get(ctx.args()) 
