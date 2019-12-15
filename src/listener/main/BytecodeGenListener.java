@@ -400,6 +400,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				proofTree.put(ctx, proofTree.get(ctx.expr(0)));
 			} else if(ctx.getChild(1).getText().equals("=")) { 	// IDENT '=' expr
 				String varId = symbolTable.getVarId(ctx.IDENT().getText());
+				if((symbolTable.getVarType(ctx.IDENT().getText()) != proofTree.get(ctx.expr(0))) || varId == null) {
+					System.out.println("Invalid Expression : " + ctx.getText());
+					System.exit(-1);
+				}
 				if(!varId.contains("Test/")) {
 					//local
 					expr = newTexts.get(ctx.expr(0))
@@ -416,10 +420,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					else if(symbolTable.getVarType(idName) == Type.INTARRAY) {
 						expr += " [I\n";
 					}
-				}
-				if(symbolTable.getVarType(ctx.IDENT().getText()) != proofTree.get(ctx.expr(0))) {
-					System.out.println("Invalid Expression : " + ctx.getText());
-					System.exit(-1);
 				}
 				proofTree.put(ctx, Type.INT);
 			} else { 											// binary operation
