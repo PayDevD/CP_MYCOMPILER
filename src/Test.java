@@ -1,10 +1,13 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 public class Test {
     static int global_a;
     static int[] global_arr;
 
     public Test() {
-        global_a = 1;
-        global_arr = new int[3];
     }
 
     public static int add(int var0, int var1) {
@@ -13,9 +16,10 @@ public class Test {
     }
 
     public static void main(String[] var0) {
+        global_a = 1;
+        global_arr = new int[3];
         int var1 = 25;
         byte var2 = 0;
-        global_arr = new int[3];
         global_arr[2] = 2;
 
         while(true) {

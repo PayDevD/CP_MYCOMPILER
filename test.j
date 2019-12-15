@@ -1,15 +1,10 @@
 .class public Test
 .super java/lang/Object
-.field static global_a Ljava/lang/int;
-.field static global_arr [Ljava/lang/int;
+.field static global_a I
+.field static global_arr [I
 .method public <init>()V
 aload_0
 invokenonvirtual java/lang/Object/<init>()V
-ldc 1
-putstatic Test/global_a Ljava/lang/int;
-ldc 3
-newarray int
-putstatic Test/global_arr [Ljava/lang/int;
 return
 .end method
 .method public static add(II)I
@@ -25,13 +20,18 @@ ireturn
 .method public static main([Ljava/lang/String;)V
 	.limit stack 32
 	.limit locals 32
+ldc 1
+putstatic Test/global_a I
+ldc 3
+newarray int
+putstatic Test/global_arr [I
 ldc 25
 istore 1
 ldc 0
 istore 2
-getstatic Test/global_arr [Ljava/lang/int;
-ldc 2
-ldc 2
+getstatic Test/global_arr [I
+ldc 2 
+ldc 2 
 iastore
 label18:
 iload 1 

@@ -47,15 +47,15 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		
 		if (isArrayDecl(ctx)) {
 			symbolTable.putGlobalVar(varName, Type.INTARRAY);
-			globalDecl += ".field static " + varName + " [Ljava/lang/int;\n";
+			globalDecl += ".field static " + varName + " [I\n";
 		}
 		else if (isDeclWithInit(ctx)) {
 			symbolTable.putGlobalVarWithInitVal(varName, Type.INT, initVal(ctx));
-			globalDecl += ".field static " + varName + " Ljava/lang/int;\n";
+			globalDecl += ".field static " + varName + " I\n";
 		}
 		else  { // simple decl
 			symbolTable.putGlobalVar(varName, Type.INT);
-			globalDecl += ".field static " + varName + " Ljava/lang/int;" +
+			globalDecl += ".field static " + varName + " I" +
 					"\n";
 		}
 	}
@@ -79,8 +79,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	@Override
 	public void exitProgram(MiniCParser.ProgramContext ctx) {
 		String classProlog = getFunProlog();
-		classProlog = classProlog.replace("Object\n", "Object\n" + globalDecl)
-				.replace("return", globalDeclWithInit + "return");
+		classProlog = classProlog.replace("Object\n", "Object\n" + globalDecl);
 		String fun_decl = "", var_decl = "";
 		
 		for(int i = 0; i < ctx.getChildCount(); i++) {
@@ -89,8 +88,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			else
 				var_decl += newTexts.get(ctx.decl(i));
 		}
-		
-		newTexts.put(ctx, classProlog + var_decl + fun_decl);
+		String expr = classProlog + var_decl + fun_decl;
+		expr = expr.replace(".method public static main([Ljava/lang/String;)V\n\t.limit stack 32\n\t.limit locals 32\n",
+				".method public static main([Ljava/lang/String;)V\n\t.limit stack 32\n\t.limit locals 32\n" +	globalDeclWithInit);
+		newTexts.put(ctx, expr);
 		
 		System.out.println(newTexts.get(ctx));
 		try {
@@ -216,14 +217,14 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		
 		if (isDeclWithInit(ctx)) {
 			globalDeclWithInit += "ldc " + ctx.LITERAL().getText()
-					+"\nputstatic Test/" + varName + " Ljava/lang/int;\n";
+					+"\nputstatic Test/" + varName + " I\n";
 			// v. initialization => Later! skip now..: 
 		}
 //		type_spec IDENT '[' LITERAL ']'
 		if (isArrayDecl(ctx)) {
 			globalDeclWithInit += "ldc " + ctx.LITERAL().getText() + "\n"
 					+ "newarray int\n"
-					+ "putstatic Test/" + varName + " [Ljava/lang/int;\n";
+					+ "putstatic Test/" + varName + " [I\n";
 		}
 		newTexts.put(ctx, varDecl);
 	}
@@ -323,7 +324,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				//global
 				stmt.append("getstatic ")
 						.append(id)
-						.append(" [Ljava/lang/int;\nareturn\n");
+						.append(" [I\nareturn\n");
 			}
 			newTexts.put(ctx, stmt.toString());
 		}
@@ -365,10 +366,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 						//global
 						expr += "getstatic " + varId;
 						if(symbolTable.getVarType(idName) == Type.INT) {
-							expr += " Ljava/lang/int;\n";
+							expr += " I\n";
 						}
 						else if(symbolTable.getVarType(idName) == Type.INTARRAY) {
-							expr += " [Ljava/lang/int;\n";
+							expr += " [I\n";
 						}
 					}
 				}
@@ -397,10 +398,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					expr = newTexts.get(ctx.expr(0))
 							+ "putstatic " + varId;
 					if(symbolTable.getVarType(idName) == Type.INT) {
-						expr += " Ljava/lang/int;\n";
+						expr += " I\n";
 					}
 					else if(symbolTable.getVarType(idName) == Type.INTARRAY) {
-						expr += " [Ljava/lang/int;\n";
+						expr += " [I\n";
 					}
 				}
 			} else { 											// binary operation
@@ -425,10 +426,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					expr = newTexts.get(ctx.expr(0))
 							+ "getstatic " + varId;
 					if(symbolTable.getVarType(idName) == Type.INT) {
-						expr += " Ljava/lang/int;\n";
+						expr += " I\n";
 					}
 					else if(symbolTable.getVarType(idName) == Type.INTARRAY) {
-						expr += " [Ljava/lang/int;\n";
+						expr += " [I\n";
 					}
 				}
 			}
@@ -443,7 +444,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			}
 			else {
 				//global
-				expr += "getstatic " + varId + " [Ljava/lang/int;\n";
+				expr += "getstatic " + varId + " [I\n";
 			}
 			expr += newTexts.get(ctx.expr(0))
 					+ newTexts.get(ctx.expr(1))
