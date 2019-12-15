@@ -16,6 +16,7 @@ import static listener.main.SymbolTable.*;
 
 public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeListener {
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
+	ParseTreeProperty<Type>	proofTree = new ParseTreeProperty<>();
 	SymbolTable symbolTable = new SymbolTable();
 	
 	int tab = 0;
@@ -307,9 +308,16 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			newTexts.put(ctx, "return\n");
 		}
 		else if(symbolTable.getVarType(returnVar) == Type.INT){
-			stmt.append("iload ")
-					.append(id)
-					.append("\nireturn\n");
+			if(!id.contains("Test/")) {
+				stmt.append("iload ")
+						.append(id);
+			}
+			else {
+				stmt.append("getstatic ")
+						.append(id)
+						.append(" I");
+			}
+					stmt.append("\nireturn\n");
 			newTexts.put(ctx, stmt.toString());
 		}
 		else {
@@ -345,14 +353,13 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				String idName = ctx.IDENT().getText();
 				if(symbolTable.getVarType(idName) == Type.INT) {
 					String varId = symbolTable.getVarId(idName);
-					if(varId.indexOf(0) != 'G') {
+					if(!varId.contains("Test/")) {
 						//local
 						expr += "iload " + varId + " \n";
 					}
 					else {
 						//global
-						varId = varId.replaceFirst("G", "");
-						expr += "getfield " + varId + "\n";
+						expr += "getstatic " + varId + " I\n";
 					}
 				}
 				//else	// Type int array => Later! skip now..

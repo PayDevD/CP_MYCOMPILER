@@ -78,6 +78,13 @@ iaload
 ldc 1
 isub
 iastore
+getstatic Test/temp I
+ldc 1 
+iadd 
+putstatic Test/temp I
+getstatic java/lang/System/out Ljava/io/PrintStream; 
+getstatic Test/temp I
+invokevirtual java/io/PrintStream/println(I)V
 getstatic Test/global_arr [I
 aload 1 
 invokestatic Test/arrprint([I[I)V

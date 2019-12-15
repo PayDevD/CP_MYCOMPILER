@@ -18,5 +18,7 @@ global_arr[0] = 0;
 global_arr[1] = 1;
 global_arr[2] = 2;
 --global_arr[0];
+temp = temp + 1;
+_print(temp);
 arrprint(global_arr, arr);
 }
