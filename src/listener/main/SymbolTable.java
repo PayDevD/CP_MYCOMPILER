@@ -110,6 +110,9 @@ public class SymbolTable {
 	
 	public String getFunSpecStr(String fname) {		
 		// <Fill here>
+		if(!_fsymtable.containsKey(fname)) {
+			return null;
+		}
 		return _fsymtable.get(fname).sigStr;
 	}
 

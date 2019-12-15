@@ -71,20 +71,9 @@ ldc 2
 ldc 2 
 iastore
 getstatic Test/global_arr [I
-ldc 0
-getstatic Test/global_arr [I
 ldc 0 
 iaload
-ldc 1
-isub
-iastore
-getstatic Test/temp I
-ldc 1 
-iadd 
-putstatic Test/temp I
-getstatic java/lang/System/out Ljava/io/PrintStream; 
-getstatic Test/temp I
-invokevirtual java/io/PrintStream/println(I)V
+istore_2 
 getstatic Test/global_arr [I
 aload 1 
 invokestatic Test/arrprint([I[I)V
